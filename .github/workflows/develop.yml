@@ -1,0 +1,69 @@
+name: DevOps IBM Bus Develop
+
+on:
+  workflow_call:
+    inputs:
+      PROJECT_NAME:
+        description: 'Nombre del proyecto o Aplicación Principal del BUS a procesar'
+        required: true
+        type: string
+      SERVER_NAME:
+        description: 'Nombre del servidor de integración, al que se realizara el despliegue del empaquetado .bar'
+        required: true
+        type: string
+      LIBRARY_NAME:
+        description: 'Librería o Librerías que se desea incluir en el empaquetado, separados por espacio ejemplo: LibraryName1 LibraryName2 .... LibraryNamen'
+        required: false
+        type: string
+      RUN_CREATE_BAR:
+        description: 'Ejecutar mqsicreatebar para compilar conjuntos de mensajes y código Java, valores permitidos (true, false)'
+        required: false
+        type: string
+      OVERRIDE_PROPERTIES:
+        description: 'Lista de propiedades que requieren hacer override al empaquetado bar'
+        required: false
+        type: string
+  
+env:
+  PROJECT_NAME: ${{ inputs.PROJECT_NAME }}
+  LIBRARY_NAME: ${{ inputs.LIBRARY_NAME }}
+  RUN_CREATE_BAR: ${{ inputs.RUN_CREATE_BAR }}
+  SERVER_NAME: ${{ inputs.SERVER_NAME }}
+  OVERRIDE_PROPERTIES: ${{ inputs.OVERRIDE_PROPERTIES }}
+  CONNECTION_BROKER: ${{ secrets.INT_BUS_CONNECTION_BROKER_DEVL }}
+  PACKAGE_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_PACKAGE }}
+  DEPLOY_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_DEPLOY }}
+  CLEAN_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_CLEAN }}
+
+jobs:
+  packageAndDeploy:
+    runs-on: [self-hosted, linux, x64, BUS]    
+    timeout-minutes: 5 
+    environment: develop
+    steps:
+      - name: Descargar Repositorio al Runner
+        uses: actions/checkout@v3
+      - name: Generar empaquetado bar
+        run: |
+          echo The AMBIENTE is 1.1.1
+          chmod +x $PACKAGE_SCRIPT_PATH 
+          $PACKAGE_SCRIPT_PATH
+      - name: Cargar empaquetado bar a github
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PROJECT_NAME }}
+          path: ${{ github.workspace }}/bar/${{ env.PROJECT_NAME }}.bar   
+      - name: Realizar despliegue al Nodo de Integración
+        run: |
+          chmod +x $DEPLOY_SCRIPT_PATH 
+          $DEPLOY_SCRIPT_PATH
+  clean:
+    runs-on: [self-hosted, linux, x64, BUS]
+    timeout-minutes: 5
+    if: ${{ always() }}
+    needs: packageAndDeploy
+    steps:
+      - name: Remover directorio y archivos del respositorio
+        run: |
+          chmod +x $CLEAN_SCRIPT_PATH 
+          $CLEAN_SCRIPT_PATH
