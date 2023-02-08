@@ -1,4 +1,4 @@
-name: DevOps IBM Bus Develop
+name: DevOps IBM Bus Main
 
 on:
   workflow_call:
@@ -7,14 +7,10 @@ on:
         description: 'Nombre del proyecto o Aplicación Principal del BUS a procesar'
         required: true
         type: string
-      INTEGRATION_NODES:
-        description: 'Alias de los Nodos de Integración, al que se realizara el despliegue del empaquetado .bar. Cada Nodo de integración debe ser separado por espacio ejemplo: Nodo01 Nodo02, ... Nodon'
-        required: true
-        type: string
       SERVER_NAME:
         description: 'Nombre del servidor de integración, al que se realizara el despliegue del empaquetado .bar'
         required: true
-        type: string      
+        type: string
       LIBRARY_NAME:
         description: 'Librería o Librerías que se desea incluir en el empaquetado, separados por espacio ejemplo: LibraryName1 LibraryName2 .... LibraryNamen'
         required: false
@@ -27,25 +23,29 @@ on:
         description: 'Lista de propiedades que requieren hacer override al empaquetado bar'
         required: false
         type: string
+      REPLICAR:
+        description: 'Indica si el despliegue se replicara el los Nodos de Integración, (true or false)'
+        required: false
+        type: boolean
   
 env:
   PROJECT_NAME: ${{ inputs.PROJECT_NAME }}
   LIBRARY_NAME: ${{ inputs.LIBRARY_NAME }}
   RUN_CREATE_BAR: ${{ inputs.RUN_CREATE_BAR }}
-  INTEGRATION_NODES: ${{ inputs.INTEGRATION_NODES }}
-  SERVER_NAME: ${{ inputs.SERVER_NAME }}  
+  SERVER_NAME: ${{ inputs.SERVER_NAME }}
   OVERRIDE_PROPERTIES: ${{ inputs.OVERRIDE_PROPERTIES }}
+  CONNECTION_BROKER: ${{ secrets.INT_BUS_CONNECTION_BROKER_PROD }}
+  CONNECTION_BROKER2: ${{ secrets.INT_BUS_CONNECTION_BROKER_PROD2 }}
   PACKAGE_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_PACKAGE }}
   DEPLOY_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_DEPLOY }}
   CLEAN_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_CLEAN }}
-  NODE_DEVL_01: ${{ secrets.INT_BUS_CB_DEV01_ITESM }}
-  NODE_DEVLMQ_01: ${{ secrets.INT_BUS_CB_DEVMQ01_ITESM }}
+  
 
 jobs:
   packageAndDeploy:
     runs-on: [self-hosted, linux, x64, BUS]    
     timeout-minutes: 5 
-    environment: develop
+    environment: main
     steps:
       - name: Descargar Repositorio al Runner
         uses: actions/checkout@v3
@@ -62,11 +62,24 @@ jobs:
         run: |
           chmod +x $DEPLOY_SCRIPT_PATH 
           $DEPLOY_SCRIPT_PATH
+  deploy2:
+    if: ${{ inputs.REPLICAR }}
+    runs-on: [self-hosted, linux, x64, BUS]
+    timeout-minutes: 5
+    needs: packageAndDeploy
+    environment: main2
+    steps:
+      - name: Realizar despliegue a IBM Integration Bus
+        run: |
+          chmod +x $DEPLOY_SCRIPT_PATH 
+          $DEPLOY_SCRIPT_PATH
+        env:
+          CONNECTION_BROKER: ${{ env.CONNECTION_BROKER2 }}
   clean:
     runs-on: [self-hosted, linux, x64, BUS]
     timeout-minutes: 5
     if: ${{ always() }}
-    needs: packageAndDeploy
+    needs: deploy2
     steps:
       - name: Remover directorio y archivos del respositorio
         run: |
