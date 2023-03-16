@@ -23,6 +23,10 @@ on:
         description: 'Ejecutar mqsicreatebar para compilar conjuntos de mensajes y código Java, valores permitidos (true, false)'
         required: false
         type: string
+      MAPS_AND_SCHEMAS:
+        description: 'Habilitar la compilación de mapas y esquemas'
+        required: false
+        type: string
       OVERRIDE_PROPERTIES:
         description: 'Lista de propiedades que requieren hacer override al empaquetado bar'
         required: false
@@ -32,6 +36,7 @@ env:
   PROJECT_NAME: ${{ inputs.PROJECT_NAME }}
   LIBRARY_NAME: ${{ inputs.LIBRARY_NAME }}
   RUN_CREATE_BAR: ${{ inputs.RUN_CREATE_BAR }}
+  MAPS_AND_SCHEMAS: ${{ inputs.MAPS_AND_SCHEMAS }}
   INTEGRATION_NODES: ${{ inputs.INTEGRATION_NODES }}
   SERVER_NAME: ${{ inputs.SERVER_NAME }}  
   OVERRIDE_PROPERTIES: ${{ inputs.OVERRIDE_PROPERTIES }}
