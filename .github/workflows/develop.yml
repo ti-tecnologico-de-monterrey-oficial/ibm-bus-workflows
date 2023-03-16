@@ -24,7 +24,7 @@ on:
         required: false
         type: string
       MAPS_AND_SCHEMAS:
-        description: 'Habilitar la compilación de mapas y esquemas'
+        description: 'Habilitar la compilación de mapas y esquemas, valores permitidos (true, false)'
         required: false
         type: string
       OVERRIDE_PROPERTIES:
