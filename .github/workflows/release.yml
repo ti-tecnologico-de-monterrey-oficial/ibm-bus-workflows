@@ -47,6 +47,7 @@ env:
   NODE_PPRD_02: ${{ secrets.INT_BUS_CB_PPRD02_ITESM }}
   NODE_PPRDMQ_01: ${{ secrets.INT_BUS_CB_PPRDMQ01_ITESM }}
   NODE_PPRDMQ_02: ${{ secrets.INT_BUS_CB_PPRDMQ02_ITESM }}
+  WF_ENVIRONMENT: release
 
 jobs:
   packageAndDeploy:
@@ -56,6 +57,8 @@ jobs:
     steps:
       - name: Descargar Repositorio al Runner
         uses: actions/checkout@v3
+        with:
+          ref: release_ace
       - name: Generar empaquetado bar
         run: |
           chmod +x $PACKAGE_SCRIPT_PATH 
