@@ -47,6 +47,7 @@ env:
   NODE_PROD_02: ${{ secrets.INT_BUS_CB_PROD02_ITESM }}
   NODE_PRODMQ_01: ${{ secrets.INT_BUS_CB_PRODMQ01_ITESM }}
   NODE_PRODMQ_02: ${{ secrets.INT_BUS_CB_PRODMQ02_ITESM }}
+  WF_ENVIRONMENT: main
 
 jobs:
   packageAndDeploy:
@@ -56,6 +57,8 @@ jobs:
     steps:
       - name: Descargar Repositorio al Runner
         uses: actions/checkout@v3
+        with:
+          ref: main_ace
       - name: Generar empaquetado bar
         run: |
           chmod +x $PACKAGE_SCRIPT_PATH 

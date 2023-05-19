@@ -45,6 +45,7 @@ env:
   CLEAN_SCRIPT_PATH: ${{ secrets.INT_BUS_SCRIPT_PATH_CLEAN }}
   NODE_DEVL_01: ${{ secrets.INT_BUS_CB_DEV01_ITESM }}
   NODE_DEVLMQ_01: ${{ secrets.INT_BUS_CB_DEVMQ01_ITESM }}
+  WF_ENVIRONMENT: develop
 
 jobs:
   packageAndDeploy:
@@ -54,6 +55,8 @@ jobs:
     steps:
       - name: Descargar Repositorio al Runner
         uses: actions/checkout@v3
+        with:
+          ref: develop_ace
       - name: Generar empaquetado bar
         run: |
           chmod +x $PACKAGE_SCRIPT_PATH 
