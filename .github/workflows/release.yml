@@ -56,7 +56,7 @@ jobs:
     environment: release
     steps:
       - name: Descargar Repositorio al Runner
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: release_ace
       - name: Generar empaquetado bar
@@ -64,7 +64,7 @@ jobs:
           chmod +x $PACKAGE_SCRIPT_PATH 
           $PACKAGE_SCRIPT_PATH
       - name: Cargar empaquetado bar a github
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PROJECT_NAME }}
           path: ${{ github.workspace }}/bar/${{ env.PROJECT_NAME }}.bar   
