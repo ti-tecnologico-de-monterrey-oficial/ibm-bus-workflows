@@ -28,7 +28,7 @@ on:
         required: false
         type: string
       OVERRIDE_PROPERTIES:
-        description: 'Lista de propiedades que requieren hacer override al empaquetado bar'
+        description: 'Lista de propiedades que requieren hacer override al empaquetado bar.'
         required: false
         type: string
   
